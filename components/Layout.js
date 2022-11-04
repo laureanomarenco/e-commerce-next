@@ -3,18 +3,27 @@ import Head from "next/head";
 import Link from "next/link";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { Menu } from "@headlessui/react";
 import { Store } from "../utils/Store";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import DropdownLink from "./DropdownLink";
+import Cookies from "js-cookie";
 
 export default function Layout({ title, children }) {
   const { status, data: session } = useSession();
 
-  const { state } = useContext(Store);
+  const { state, dispatch } = useContext(Store);
   const { cart } = state;
   const [cartItemsCount, setCartItemsCount] = useState(0);
   useEffect(() => {
     setCartItemsCount(cart.cartItems.reduce((a, c) => a + c.quantity, 0));
   }, [cart.cartItems]);
+
+  const logoutClickHandler = () => {
+    Cookies.remove('cart')
+    dispatch({ type: 'CART_RESET' })
+    signOut({ callbackUrl: '/login' })
+  }
   return (
     <>
       <Head>
@@ -45,7 +54,19 @@ export default function Layout({ title, children }) {
               {status === "loading" ? (
                 "Loading"
               ) : session?.user ? (
-                session.user.name
+                <Menu as='div' className='relative inline-block'>
+                  <Menu.Button>
+                    {session.user.name}
+                  </Menu.Button>
+                  <Menu.Items className='absolute right-0 w-56 origin-top-right bg-white shadow-lg'>
+                    <Menu.Item>
+                      <DropdownLink className='dropdown-link' href='/profile'>Profile</DropdownLink>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <a className="dropdown-link" href='#' onClick={logoutClickHandler}>Logout</a>
+                    </Menu.Item>
+                  </Menu.Items>
+                </Menu>
               ) : (
                 <Link href="/login">
                   <span className="p-4">Login</span>
