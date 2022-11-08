@@ -105,14 +105,14 @@ export default function PlaceOrderScreen() {
                 </thead>
                 <tbody>
                   {cartItems.map((item) => (
-                    <tr>
+                    <tr key={item._id} className='border-b'>
                       <td>
                         <Link href={`/product/${item.slug}`}>
                           <span>{item.name}</span>
                         </Link>
                       </td>
                       <td className="p-5 text-right">{item.quantity}</td>
-                      <td className="p-5 text-right">{item.price}</td>
+                      <td className="p-5 text-right">${item.price}</td>
                       <td className="p-5 text-right">
                         ${item.quantity * item.price}
                       </td>
