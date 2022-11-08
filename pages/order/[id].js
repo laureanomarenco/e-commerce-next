@@ -31,7 +31,7 @@ function OrderScreen() {
 
   const { query } = useRouter();
   const orderId = query.id;
-  const [{ loading, error, order, successPay, loadingPay, errorPay }, dispatch] = useReducer(reducer, {
+  const [{ loading, error, order, successPay, loadingPay }, dispatch] = useReducer(reducer, {
     loading: true,
     order: {},
     error: "",
@@ -73,7 +73,6 @@ function OrderScreen() {
     paymentMethod,
     orderItems,
     itemsPrice,
-    taxPrice,
     totalPrice,
     shippingPrice,
     isPaid,

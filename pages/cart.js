@@ -7,6 +7,7 @@ import { Store } from "../utils/Store";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Promise } from "mongoose";
 
 function CartScreen() {
   const { state, dispatch } = useContext(Store);

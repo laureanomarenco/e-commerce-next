@@ -14,7 +14,7 @@ export default function ProductScreen(props) {
   const { state, dispatch } = useContext(Store);
   const router = useRouter();
   if (!product) {
-    return <div>Product don't find</div>;
+    return <div>Product dont find</div>;
   }
 
   const addToCartHandler = async() => {
