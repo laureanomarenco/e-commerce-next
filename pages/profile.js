@@ -1,62 +1,50 @@
-import Link from "next/link";
-import React, { useEffect } from "react";
-import Layout from "../components/Layout";
-import { useForm } from "react-hook-form";
-import { signIn, useSession } from "next-auth/react";
-import { getError } from "../utils/error";
-import { toast } from "react-toastify";
-import { useRouter } from "next/router";
 import axios from "axios";
+import { signIn, useSession } from "next-auth/react";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import Layout from "../components/Layout";
+import { getError } from "../utils/error";
 
-export default function LoginScreen() {
-
+export default function ProfileScreen() {
   const { data: session } = useSession();
-
-  const router = useRouter();
-  const { redirect } = router.query
-
-  useEffect(() => {
-    if(session?.user) {
-      router.push(redirect || '/');
-    }
-  }, [router, session, redirect])
-
   const {
     handleSubmit,
     register,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm();
 
-  const submitHandler = async ({ name, email, password }) => {
+  useEffect(() => {
+    setValue("name", session.user.name);
+    setValue("email", session.user.email);
+  }, [session.user, setValue]);
+
+  const submitHandler = async ({ name, email, password, confirmPassword }) => {
     try {
-      await axios.post('/api/auth/signup', {
-        name, 
+      await axios.put("/api/auth/update", {
+        name,
         email,
         password,
-      })
-
-      const result = await signIn('credentials', {
+      });
+      const result = await signIn("credentials", {
         redirect: false,
         email,
-        password
-      })
+        password,
+      });
+      toast.success('Profile updated successfully');
       if(result.error){
         toast.error(result.error)
       }
     } catch (error) {
-      toast.error(getError(error))
+      toast.error(getError(error));
     }
   };
-
-  return (
-    <Layout title="Register">
-      <form
-        className="mx-auto max-w-screen-md"
-        onSubmit={handleSubmit(submitHandler)}
-      >
-        <h1 className="mb-4 text-xl">Create Account</h1>
-        <div className="mb-4">
+  return <Layout title='Profile'>
+    <form className="mx-auto max-w-screen-md" onSubmit={handleSubmit(submitHandler)}>
+      <h1 className="mb-4 text-xl">Update Profile</h1>
+      <div className="mb-4">
           <label htmlFor="name">Name</label>
           <input
             type="text"
@@ -108,8 +96,8 @@ export default function LoginScreen() {
         <div className="mb-4">
           <label htmlFor="confirmPassword">Confirm Password</label>
           <input
-            type="confirmPassword"
-            {...register("password", {
+            type="password"
+            {...register("confirmPassword", {
               required: "Please enter confirm password",
               validate: (value) => value === getValues('password'),
               minLength: { value: 6, message: "confirm password is more than 5 chars" },
@@ -125,13 +113,11 @@ export default function LoginScreen() {
             <div className="text-red-500">Password do not match</div>
           )}
         </div>
-        <div>
-          <button className="primary-button">Register</button>
+        <div className='mb-4'>
+            <button className="primary-button">Update Profile</button>
         </div>
-        <div>
-          Dont have an account? <Link href={`/register?redirect=${redirect || '/'}`}>Register</Link>
-        </div>
-      </form>
-    </Layout>
-  );
+    </form>
+  </Layout>;
 }
+
+ProfileScreen.auth = true;
